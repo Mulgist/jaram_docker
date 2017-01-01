@@ -1,0 +1,146 @@
+{% extends 'layout.html' %}
+{% load board_extras %}
+{% load staticfiles %}
+
+{% block header_title %}
+  {{ post.title }}
+{% endblock %}
+
+{% block header_content %}
+  <p><i class="user icon"></i>&nbsp;{{ post.writer }}&nbsp;&nbsp;&nbsp;&nbsp;<i
+      class="calendar icon"></i>&nbsp;{{ post.write_date|date:'Y년 m월 d일' }}</p>
+  <a href="{% url 'post_list' name=post.board.eng_name %}" class="ui button inverted basic">게시글 목록</a>
+  <a href="{% url 'post_modify' name=post.board.eng_name id=post.pk%}" class="ui button inverted yellow basic">수정</a>
+  <a class="ui button inverted red basic" id="post-delete">삭제</a>
+{% endblock %}
+
+{% block head %}
+  <style>
+    {% if post.thumbnail %}
+      header {
+        background: url("{{ post.thumbnail.url }}") center;
+      }
+    {% endif %}
+  </style>
+  <script>
+    $('.ui.basic.modal')
+      .modal()
+    ;
+    $(function() {
+      $('#post-delete').click(function() {
+        $('.ui.basic.modal')
+          .modal('show')
+        ;
+      });
+      $('#comment-submit').click(function() {
+        if ( $.trim( $('#comment-content').val() ) == '' ) {
+          alert('input is blank');
+          return false;
+        }
+      })
+    })
+  </script>
+{% endblock %}
+
+{% block body %}
+  <div class='ui text container'>
+    <div id="contents">
+      {% autoescape off %}{{ post.content }}{% endautoescape %}
+    </div>
+    {% if post.attachment %}
+      <br><div class="ui divider"></div>
+      <h3>첨부파일</h3>
+      <a href="{{ post.attachment.url }}"><i class="icon download"></i>{{ attachment_name }}</a>
+    {% endif %}
+    <br>
+    {% if header_title != '공지사항' %}
+      <div class="ui comments">
+        <h3 class="ui dividing header">{{ comments|num_of_comments }}개의 댓글</h3>
+        {% for comment in comments %}
+          <div class="comment">
+            <a class="avatar">
+              {% if comment.writer.profile %}
+                <img src={{ comment.writer.profile }}>
+              {% else %}
+                <img src="{% static "mainapp/img/profile_default.png" %}">
+              {% endif %}
+            </a>
+            <div class="content">
+              <a class="author">{{ comment.writer }}</a>
+              <div class="metadata">
+                <span class="date">{{ comment.write_date }}</span>
+                <!--TODO: 날짜, 시간 표시 포맷 변경 ex) Today at 5:42PM-->
+              </div>
+              <div class="text">
+                  {{ comment.content|linebreaks }}
+              </div>
+{#              <div class="actions">#}
+{#                <a class="reply">Reply</a>#}
+{#              </div>#}
+            </div>
+          <!--TODO: 댓글 작성자 클릭 시 회원정보 보여주는 페이지 제작 -->
+          </div>
+{#          {% for reply in comment.replies.all %}#}
+{#            <div class="comment">#}
+{#              <a class="avatar">#}
+{#                {% if comment.writer.profile %}#}
+{#                  <img src={{ comment.writer.profile }}>#}
+{#                {% else %}#}
+{#                  <img src="{% static "mainapp/img/profile_default.png" %}">#}
+{#                {% endif %}#}
+{#              </a>#}
+{#              <div class="content">#}
+{#                <a class="author">{{ comment.writer }}</a>#}
+{#                <div class="metadata">#}
+{#                  <span class="date">{{ comment.write_date }}</span>#}
+{#                  <!--TODO: 날짜, 시간 표시 포맷 변경 ex) Today at 5:42PM-->#}
+{#                </div>#}
+{#                <div class="text">#}
+{#                  {{ comment.content }}#}
+{#                </div>#}
+{#              </div>#}
+{#              <!--TODO: 댓글 작성자 클릭 시 회원정보 보여주는 페이지 제작 -->#}
+{#            </div>#}
+{#          {% endfor %}#}
+        {% endfor %}
+        <form id="comment-form" class="ui reply form" method="post">
+          {% csrf_token %}
+          <div class="field">
+            <label>댓글달기</label>
+            <textarea id="comment-content" name="content" rows="3" required></textarea>
+          </div>
+          <button id="comment-submit" class="ui blue labeled submit icon button hidden" type="submit" style="float: right;">
+            <i class="icon edit"></i>저장
+          </button>
+          <br>
+        </form>
+      </div>
+    {% endif %}
+  </div>
+  <div class="ui basic modal">
+    <i class="close icon"></i>
+      <div class="header">
+        게시글을 삭제합니다.
+      </div>
+    <div class="image content">
+      <div class="image">
+        <i class="trash outline icon"></i>
+      </div>
+      <div class="description">
+        <p>삭제된 게시글은 복구할 수 없습니다. 계속하시겠습니까?</p>
+      </div>
+    </div>
+    <div class="actions">
+      <div class="ui cancel red basic inverted button">
+        <i class="remove icon"></i>
+        아니오
+      </div>
+      <a href="{% url 'post_delete' name=post.board.eng_name id=post.pk%}">
+        <div class="ui ok green basic inverted button">
+          <i class="checkmark icon"></i>
+          네
+        </div>
+      </a>
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,123 @@
+{% extends 'layout.html' %}
+
+{% load staticfiles %}
+{% load board_extras %}
+
+{% block header_title %}
+  {% if notice %}
+    {{ notice.title }}
+  {% else %}
+    {#    공지가 없어유 ㅠ_ㅠ#}
+  {% endif %}
+{% endblock %}
+
+{% block header_content %}
+  {% if notice %}
+    <a href="{{ notice.url }}" class="ui button inverted basic">게시글 바로가기</a>
+  {% endif %}
+{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="{% static 'mainapp/css/main.css' %}"/>
+{% endblock %}
+
+{% block body %}
+  <div class="ui stackable two column divided grid container">
+    <div class="row">
+      <!--게시글 목록-->
+      <div class="ten wide column">
+        <!--최신 게시글-->
+        <h1 class="ui header">최신 게시물</h1>
+        <div class="ui divider"></div>
+        <div class="ui divided items">
+          {% for item in recent_posts %}
+            <div class="item" style="">
+              <div class="ui small rounded image">
+                <a href="{% url 'post_detail' name=item.board.eng_name id=item.pk %}">
+                  {% if item.thumbnail %}
+                    <img src="{{ item.thumbnail.url }}">
+                  {% else %}
+                    <img src="{% static 'mainapp/img/no_image.png' %}">
+                  {% endif %}
+                </a>
+              </div>
+              <div class="content">
+                <a href="{% url 'post_detail' name=item.board.eng_name id=item.pk %}"
+                   class="header">{{ item.title }}</a>
+                <div class="writer"><p>by {{ item.writer }}</p></div>
+                <div class="description">
+                  <span><p>
+                    {% autoescape off %}{{ item.content|get_text|truncatechars:200 }}{% endautoescape %}</p></span>
+                </div>
+                <div class="meta">
+                  <span>{{ item.write_date|date:"Y.m.d h:i a" }}&nbsp;|</span>
+                  <span><a href="{% url 'post_list' name=item.board.eng_name %}"
+                           class="section">{{ item.board.name }}</a></span>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+        <!--공지사항-->
+        <h1 class="ui header">공지사항</h1>
+        <div class="ui divider"></div>
+        <div class="ui divided items">
+          {% for item in notice_posts %}
+            <div class="item">
+              <div class="ui small rounded image">
+                {% if item.thumbnail %}
+                  <a href="{% url 'post_detail' name=item.board.eng_name id=item.pk %}">
+                    <img src="{{ item.thumbnail.url }}">
+                  </a>
+                {% else %}
+                  <a href="{% url 'post_detail' name=item.board.eng_name id=item.pk %}">
+                    <img src="{% static 'mainapp/img/no_image.png' %}">
+                  </a>
+                {% endif %}
+              </div>
+              <div class="content">
+                {% if item.emphasis %}
+                  <a href="{% url 'post_detail' name='notice' id=item.pk %}" class="header">[중요] {{ item.title }}</a>
+                {% else %}
+                  <a href="{% url 'post_detail' name='notice' id=item.pk %}" class="header">{{ item.title }}</a>
+                {% endif %}
+                <div class="description">
+                  <span><p>
+                    {% autoescape off %}{{ item.content|get_text|truncatechars:200 }}{% endautoescape %}</p></span>
+                </div>
+                <div class="meta">
+                  <span>{{ item.write_date|date:"Y.m.d h:i a" }}</span>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+      <!--우측 위젯 바-->
+      <div class="six wide column">
+        <div class="ui segment">
+          <h1>다가오는 이벤트</h1>
+          <div class="ui divider"></div>
+          <div>
+            {% for event in events %}
+              <tr>
+                <td style="height: 120px!important; background-color: #f7f7f7; padding: 0">
+                  <div class="item">
+                    <div class="content" style="height:60px">
+                      <a href="{% url 'event' id=event.pk %}" class="header"
+                         style="font-size:20px">{{ event.title }}</a>
+                      <div class="description">{{ event.start_date.year }} / {{ event.start_date.month }}
+                        / {{ event.start_date.day }}
+                        ~ {{ event.end_date.year }} / {{ event.end_date.month }} / {{ event.end_date.day }}
+                      </div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

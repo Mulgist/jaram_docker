@@ -1,0 +1,145 @@
+{% extends 'layout.html' %}
+
+{% load staticfiles %}
+
+{% block header_title %}
+  일정
+{% endblock %}
+
+{% block header_content %}
+  <p id="calendar-info">{{ year }}년 {{ month }}월</p>
+{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="{% static 'schedule/css/calendar.css' %}"/>
+  <script>
+    var year = {{ year }};
+    var month = {{ month }};
+    function setTitleVisibility() {
+      if ($('div#media-768').css('display') == 'none') {
+        $(".title").hide();
+        $("i.circle.icon").addClass("mini").css({"position": "static"});
+        $(".schedule").css({"display": "inline-block", "width": "12px"});
+        $("td").addClass("selectable");
+        loadDailySchedule();
+      }
+      else {
+        $(".title").show();
+        $("i.circle.icon").removeClass("mini").css({"position": "absolute"});
+        $(".schedule").css({"display": "block", "width": "inherit"});
+        $("td.selectable").removeClass("selectable");
+        loadDailySchedule();
+      }
+    }
+    function createCalendar() {
+      $.ajax({
+        type: "get",
+        url: "{% url 'schedule_api_user' %}?y=" + year + "&m=" + month + "&o=next",
+        success: function (data) {
+          $('#week-list').html(data);
+          $('#calendar-info').text(year + "년 " + month + "월");
+          setTitleVisibility();
+          loadDailySchedule();
+        },
+        error: function () {
+          alert("error");
+        }
+      });
+    }
+    function loadDailySchedule() {
+      $('td.selectable > div').bind('click', function(){
+        var date = $(this).find('div.date').find('p').text();
+        if(date){
+          window.location.href = "{% url 'daily_schedule' %}?y=" + year + "&m=" + month + "&d=" + date;
+        }
+      });
+    }
+    $(window).on('load', function () {
+      setTitleVisibility();
+    });
+    $(window).on('resize', function () {
+      setTitleVisibility();
+    });
+    $(function () {
+      $('#next-month').click(function () {
+        year = Math.floor(year + month / 12);
+        month = month % 12 + 1;
+        createCalendar();
+      });
+      $('#this-month').click(function () {
+        year = {{ year }};
+        month = {{ month }};
+        createCalendar();
+      });
+      $('#prev-month').click(function () {
+        if (month == 1) {
+          year = year - 1;
+          month = 12;
+        } else {
+          month = month - 1;
+        }
+        createCalendar();
+      });
+      loadDailySchedule();
+    });
+  </script>
+{% endblock %}
+
+{% block body %}
+  <section class="ui container">
+    <div class="ui buttons" style="position: absolute;
+        left: 50%;
+        margin-right: -50%;
+        transform: translate(-50%, -50%);">
+      <div id='prev-month' class="ui basic animated button" tabindex="0">
+        <div class="hidden content">Prev</div>
+        <div class="visible content">
+          <i class="large chevron left icon"></i>
+        </div>
+      </div>
+      <div id='this-month' class="ui basic vertical animated button" tabindex="0">
+        <div class="hidden content">Now</div>
+        <div class="visible content">
+          <i class="large calendar outline icon"></i>
+        </div>
+      </div>
+      <div id='next-month' class="ui basic animated button" tabindex="0">
+        <div class="hidden content">Next</div>
+        <div class="visible content">
+          <i class="large chevron right icon"></i>
+        </div>
+      </div>
+    </div>
+    <table class="ui very basic celled unstackable table">
+      <thead>
+      <tr>
+        <th width="14%" style="background-color: #f7f7f7; padding:10px;">
+          <p class="weekday">SUN</p>
+        </th>
+        <th width="14%" style="padding:10px;">
+          <p class="weekday">MON</p>
+        </th>
+        <th width="14%" style="padding:10px;">
+          <p class="weekday">TUE</p>
+        </th>
+        <th width="14%" style="padding:10px;">
+          <p class="weekday">WED</p>
+        </th>
+        <th width="14%" style="padding:10px;">
+          <p class="weekday">THU</p>
+        </th>
+        <th width="14%" style="padding:10px;">
+          <p class="weekday">FRI</p>
+        </th>
+        <th width="14%" style="padding:10px;">
+          <p class="weekday">SAT</p>
+        </th>
+      </tr>
+      </thead>
+      <tbody id="week-list">
+      {% include 'jaram_calendar.html' %}
+      </tbody>
+    </table>
+    <div id="media-768"></div>
+  </section>
+{% endblock %}

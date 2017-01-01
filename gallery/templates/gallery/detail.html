@@ -1,0 +1,76 @@
+{% extends 'layout.html' %}
+
+{% load staticfiles %}
+
+{% block head %}
+  <style>
+    {% if album.main_url %}
+      header {
+        background: url("{{ album.main_url }}") center;
+      }
+    {% endif %}
+
+    .column.image {
+      cursor: pointer;
+    }
+
+    .shadow-top {
+      box-shadow: #888888 0 0 12px;
+    }
+  </style>
+
+  <script>
+    $(function () {
+      var imageViewer = $("#image-viewer");
+      var imageView = imageViewer.find("img");
+      var loadAlert = imageViewer.find('.description');
+      $(".column,image").click(function () {
+        imageView.addClass('hide');
+        loadAlert.removeClass('hide');
+        imageViewer.modal({observeChanges: true}).modal('show');
+        imageView.attr("src", $(this).attr("origin-url"));
+      });
+      imageView.bind('load', function () {
+        imageView.removeClass('hide');
+        loadAlert.addClass('hide');
+        imageViewer.modal('refresh');
+      });
+    });
+  </script>
+{% endblock %}
+
+{% block header_title %}
+  {{ album.title }}
+{% endblock %}
+
+{% block header_content %}
+  <p>{{ album.date|date:"Y년 m월 d일" }}</p>
+  <p>{{ album.description }}</p>
+  <a href="{% url 'gallery' %}" class="ui button inverted basic">앨범 목록</a>
+{% endblock %}
+
+{% block body %}
+  <section class="shadow-top">
+    <div class="ui five column stackable grid gallery">
+      {% for image in album.photo_set.all %}
+        <div class="column image full" style="background-image: url('{{ image.image_url }}');"
+             origin-url="{{ image.image_origin_url }}"></div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <div id="image-viewer" class="ui basic modal">
+    <div class="header">크게보기</div>
+    <div class="content">
+      <img style="width: 100%; height: auto;">
+      <div class="description hide">
+        <p>이미지를 불러오는 중...</p>
+      </div>
+    </div>
+    <div class="actions">
+      <div class="ui cancel red basic inverted button">
+        <i class="remove icon"></i> 닫기
+      </div>
+    </div>
+  </div>
+{% endblock %}

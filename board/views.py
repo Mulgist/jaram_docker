@@ -263,3 +263,4 @@ class PostDeleteView(TemplateView):
         post.first().delete()
 
         return redirect('/board/%s/?success=삭제되었습니다.' % kwargs.get('name'))
+	

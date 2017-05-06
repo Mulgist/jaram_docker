@@ -12,7 +12,6 @@ from django.utils.translation import ugettext as _
 from django.db import IntegrityError
 from main.util import create_response
 
-
 class IntroView(TemplateView):
     template_name = 'intro.html'
 
@@ -71,6 +70,7 @@ class ProfileView(TemplateView):
         user.email = data.get('email')
         user.phone = data.get('phone', '')
         user.sns = data.get('sns', '')
+        user.birth = data.get('birth')
         user.save()
 
         return redirect('/profile?success=수정 완료')
@@ -106,6 +106,7 @@ class SignUpView(TemplateView):
         member.phone = data.get('phone')
         member.period = data.get('period')
         member.enter_year = data.get('enter_year')
+        member.birth = data.get('birth')
 
         try:
             member.grade = Grade.objects.get(name='미승인')

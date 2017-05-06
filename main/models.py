@@ -114,10 +114,15 @@ class Member(AbstractBaseUser, PermissionsMixin):
         return self.name
 
     def get_username(self):
-        return self.name
+        return self.user_id
 
     def enter_year_short(self):
         return self.enter_year % 100
+
+    def birth_iso(self):
+        if self.birth == '':
+            return ''
+        return self.birth.isoformat()
 
     def get_level(self, groups):
         if self.is_superuser or self.is_staff:

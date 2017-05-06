@@ -7,10 +7,16 @@ For more information on this file, see
 https://docs.djangoproject.com/en/1.9/howto/deployment/wsgi/
 """
 
-import os
+import os, sys
 
 from django.core.wsgi import get_wsgi_application
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "jaram.settings")
+sys.path.append('/var/www/html/jaram.net')
+
+# add the virtualenv site-packages path to the sys.path
+sys.path.append('/usr/lib64/python3.4/site-packages')
+
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "jaram.settings.local")
 
 application = get_wsgi_application()

@@ -55,7 +55,7 @@
         </div>
         <div class="column field">
           <label>생일</label>
-          <input type="date" name="birth" value="{{ user.birth|default_if_none:'' }}">
+          <input type="date" name="birth" value="{{ user.birth_iso|default_if_none:'' }}">
         </div>
       </div>
     </section>

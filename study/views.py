@@ -106,6 +106,8 @@ class StudyRegistrationView(TemplateView):
         study.content = data.get('content')
         study.image = file.get('image')
 
+        study.semester_id = 1
+
         study.save()
 
         for member in Member.objects.filter(pk__in=data.get('member').split(',')).all():

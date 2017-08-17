@@ -6,7 +6,7 @@ DATABASES = {
         'NAME': 'jaram',
         'USER': 'jaram',
         'PASSWORD': 'Qoswlfdlsnrn',
-        'HOST': 'localhost',
+        'HOST': 'db',
         'PORT': '3306',
         'OPTIONS': {
             'init_command': 'SET character_set_connection=utf8,'
